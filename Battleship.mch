@@ -9,7 +9,7 @@ MACHINE
 SETS
     PLAYER = {PLAYER_1, PLAYER_2};
     STATUS = {DEPLOY_STAGE, ONGOING_GAME, WINNER_PLAYER_1, WINNER_PLAYER_2}; // status of the game
-    MESSAGE = {SUCCESS, INVALID_PLACEMENT, SHIPS_ARE_ALREADY_PLACED,HIT,MISS, YOU_TRIED_THIS_TARGET_BEFORE} // messages to display
+    MESSAGE = {SUCCESS, INVALID_PLACEMENT,HIT,MISS, YOU_TRIED_THIS_TARGET_BEFORE} // messages to display
     
 CONSTANTS
     GRID,// to store the grid of the battlefield 
@@ -50,19 +50,25 @@ OPERATIONS
     report <-- deployFleet(player, positions) =
     PRE
         player: PLAYER &
-        positions <: GRID &
+        positions <: NAT1 * NAT1 &
         card(positions) = shipCount &
         gameState = DEPLOY_STAGE &
         fleet(player)={}
         
     THEN
-       
-            fleet(player) := positions ||
+       IF (positions <: GRID)THEN
+           fleet(player) := positions ||
             report := SUCCESS ||
             //if both players have placed their fleets then the game stage changing to ongoing game
             IF(fleet(PLAYER_1) /= {} or fleet(PLAYER_2) /= {}) THEN
                 gameState := ONGOING_GAME
             END
+        ELSE
+            report := INVALID_PLACEMENT
+        END
+        
+              
+            
        
         
     END;
@@ -71,10 +77,11 @@ OPERATIONS
     report <-- playerShoots(target) =  
     PRE  
         gameState = ONGOING_GAME &  
-        target : GRID 
+        target : NAT1 * NAT1 
         
     THEN  
-        //if the target is a location that already shoot, then return error message
+        IF(target: GRID) THEN 
+            //if the target is a location that already shoot, then return error message
         IF(shots(turn) /\ {target} = {}  ) THEN
             shots(turn) := shots(turn) \/ {target} ||  
             
@@ -100,6 +107,10 @@ OPERATIONS
         ELSE
             report:= YOU_TRIED_THIS_TARGET_BEFORE
         END
+    ELSE
+        report := INVALID_PLACEMENT
+    END
+    
         
     END;
     
