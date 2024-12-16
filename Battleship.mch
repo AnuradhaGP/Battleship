@@ -160,7 +160,7 @@ OPERATIONS
     END
     
 DEFINITIONS
-    SET_PREF_RANDOMISE_ENUMERATION_ORDER == TRUE;
+
     ANIMATION_FUNCTION ==
     ({r, c, img | r:1..(gridSize+1) & c:1..((2*gridSize)+1) & img=0} 
         
